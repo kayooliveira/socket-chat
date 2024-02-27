@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./img/favicon.png" type="image/png">
+  <link rel="stylesheet" href="./css/global.css">
+  <title>Socket Chat</title>
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'bounce-100': 'bounce 1s infinite 100ms',
+            'bounce-500': 'bounce 1s infinite 200ms',
+            'bounce-1000': 'bounce 1s infinite 300ms'
+          },
+          colors: {
+            brand: {
+              primary: '#09F28F',
+              primarydark: '#0D9488',
+              secondary: '#08A2F7',
+              secondarydark: '#222D5B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="relative max-h-full bg-zinc-950 text-zinc-300 h-full grid grid-cols-1 grid-rows-[10svh_90svh]">
+    <div id="login"  class="absolute top-0 left-0 w-full h-full z-40 bg-zinc-950 flex items-center justify-center">
+      <form id="login-form" class="flex flex-col gap-4 p-6 rounded-lg border border-zinc-900">
+        <img src="./img/logo.png" alt="Logo" class="h-20 w-auto mx-auto">
+        <h1 class="text-3xl text-center text-transparent bg-gradient-to-b from-brand-primary to-brand-secondarydark bg-clip-text font-bold uppercase">
+          SOCKET CHAT
+        </h1>
+        <input type="text" id="username-input" class="h-12 bg-zinc-900 text-zinc-300 border border-zinc-900 rounded-lg p-4 outline-none hover:border-brand-primarydark transition-colors focus:border-brand-primarydark" autocomplete="off" placeholder="Digite seu nome..." required>
+          <hr class="border-t border-zinc-900">
+        <button type="submit"
+          class="h-10 bg-brand-primary hover:bg-brand-primarydark transition-colors text-zinc-950 font-bold uppercase rounded-lg outline-none focus:ring-1 focus:ring-brand-primarydark ring-offset-2 ring-offset-zinc-950">
+          Entrar
+        </button>
+      </form>
+    </div>
+  <nav class="h-full rounded-lg w-full bg-zinc-900 p-1 px-4">
+    <div class="max-w-screen-lg px-6 h-full mx-auto">
+      <div class="flex items-center justify-center  gap-4 h-full">
+        <img src="./img/logo.png" alt="Logo" class="h-full w-auto">
+        <span
+          class="bg-gradient-to-b from-brand-primary text-transparent to-brand-secondarydark bg-clip-text font-bold uppercase text-3xl">
+          Socket Chat <br />
+        </span>
+      </div>
+    </div>
+  </nav>
+  <main
+    class="relative w-full max-h-full flex grid p-6 pt-8 gap-4 max-w-screen-lg mx-auto grid-cols-1 grid-rows-[1fr_min-content]">
+    <div id="status" class="hidden absolute top-2 left-0 px-6 w-full">
+      <div class="flex items-center gap-2">
+        <div class="h-4 w-4 bg-brand-primary rounded-full"></div>
+        <span class="text-xs flex items-center justify-center">Conectado como &nbsp;<b id="client-info"></b> <button id="logout" title="sair" class="underline text-brand-secondary text-base ml-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="loading"
+      class="absolute h-full w-full z-40 top-0 left-0 flex justify-center items-center h-full bg-zinc-950">
+      <div class="flex gap-2">
+        <div class="h-4 w-4 bg-brand-primary rounded-full animate-bounce-100"></div>
+        <div class="h-4 w-4 bg-brand-primarydark rounded-full animate-bounce-500"></div>
+        <div class="h-4 w-4 bg-brand-secondarydark rounded-full animate-bounce-1000"></div>
+      </div>
+    </div>
+    <section id="chat-messages" class="flex flex-col h-full border border-zinc-900 gap-4 rounded-lg p-4 overflow-y-scroll h-full">
+    </section>
+    <section id="chat-input" class="rounded-lg h-20 border border-zinc-900 p-4">
+      <form id="chat-form" class="h-full flex items-center gap-4">
+        <input type="text" id="message"
+          autocomplete="off"
+          class="h-full w-full bg-zinc-900 text-zinc-300 border border-zinc-900 rounded-lg p-4 outline-none hover:border-brand-primarydark transition-colors focus:border-brand-primarydark"
+          placeholder="Digite sua mensagem...">
+        <button type="submit"
+          class="h-full w-20 bg-brand-primary hover:bg-brand-primarydark transition-colors flex items-center justify-center text-zinc-950 font-bold uppercase rounded-lg outline-none focus:ring-1 focus:ring-brand-primarydark ring-offset-2 ring-offset-zinc-950">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-message-square-more">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            <path d="M8 10h.01" />
+            <path d="M12 10h.01" />
+            <path d="M16 10h.01" />
+          </svg>
+        </button>
+    </section>
+  </main>
+  <script type="module" src="./js/socket.js"></script>
+  
+  <script type="module" src="./js/index.js"></script>
+</body>
+
+</html>
